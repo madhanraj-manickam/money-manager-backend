@@ -69,7 +69,7 @@ public class TransactionController {
         User user = userRepository.findByUsername(username);
         if (user == null) return ResponseEntity.status(404).body("User not found");
 
-        // Side 1: The Expense (From)
+        // Creates the "Out" entry
         Transaction source = new Transaction();
         source.setAmount(t.getAmount());
         source.setDescription("Transfer to " + t.getToDivision() + ": " + t.getDescription());
@@ -77,7 +77,7 @@ public class TransactionController {
         source.setDivision(t.getDivision());
         service.save(source, user);
 
-        // Side 2: The Income (To)
+        // Creates the "In" entry
         Transaction target = new Transaction();
         target.setAmount(t.getAmount());
         target.setDescription("Transfer from " + t.getDivision() + ": " + t.getDescription());
@@ -87,4 +87,4 @@ public class TransactionController {
 
         return ResponseEntity.ok("Transfer successful");
     }
-}
+    }
