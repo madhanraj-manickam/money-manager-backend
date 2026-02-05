@@ -63,4 +63,28 @@ public class TransactionController {
     public void delete(@PathVariable Long id) {
         service.delete(id);
     }
+
+    @PostMapping("/transactions/transfer/{username}")
+    public ResponseEntity<?> transfer(@RequestBody Transaction t, @PathVariable String username) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) return ResponseEntity.status(404).body("User not found");
+
+        // 1. Create the Expense side (Source)
+        Transaction source = new Transaction();
+        source.setAmount(t.getAmount());
+        source.setDescription("Transfer to " + t.getToDivision() + ": " + t.getDescription());
+        source.setType("EXPENSE");
+        source.setDivision(t.getDivision());
+        service.save(source, user);
+
+        // 2. Create the Income side (Destination)
+        Transaction target = new Transaction();
+        target.setAmount(t.getAmount());
+        target.setDescription("Transfer from " + t.getDivision() + ": " + t.getDescription());
+        target.setType("INCOME");
+        target.setDivision(t.getToDivision());
+        service.save(target, user);
+
+        return ResponseEntity.ok("Transfer successful");
+    }
 }
